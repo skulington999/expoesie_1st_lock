@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Secret</title>
+
+<!-- Police 8-bit -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#06060a;
+    --card:#0b0b0f;
+    --red:#ff2b2b;
+    --muted:#9aa;
+  }
+  html,body{height:100%;margin:0;background:radial-gradient(circle at 20% 10%, #0b0b10 0%, var(--bg) 40%);font-family:"Press Start 2P",monospace;color:#fff}
+  .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
+  .card{width:780px;max-width:95%;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:2px solid rgba(255,255,255,0.03);padding:28px;border-radius:8px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.7)}
+  .title{font-size:11px;color:var(--muted);margin-bottom:18px}
+  input[type="text"]{width:60%;padding:12px;border-radius:6px;border:2px solid #111;background:#060608;color:#fff;font-family:inherit;font-size:12px;outline:none;margin-right:8px}
+  button{padding:12px 16px;border-radius:6px;border:0;background:var(--red);color:#111;font-weight:700;cursor:pointer;font-family:inherit}
+  .hint{margin-top:12px;color:var(--muted);font-size:12px}
+  .reveal{margin-top:28px;font-size:32px;letter-spacing:2px;color:var(--red);text-shadow:2px 0 0 #600,-2px 0 0 #600,0 2px 0 #600,0 -2px 0 #600;display:none;white-space:pre-wrap;word-break:break-word;}
+  .vignette{margin-top:20px;font-size:12px;color:var(--muted)}
+  @keyframes glitch {0% { transform: translateX(0) }20% { transform: translateX(-2px) skewX(-1deg) }40% { transform: translateX(2px) skewX(1deg) }60% { transform: translateX(-2px) skewX(-1deg) }80% { transform: translateX(2px) skewX(1deg) }100% { transform: translateX(0) }}
+  .reveal.glitch{animation:glitch .6s infinite;}
+  @media(max-width:520px){.reveal{font-size:20px}input[type="text"]{width:100%;display:block;margin-bottom:10px}button{width:100%}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="title">🔍 Trouve le code dans l'image — entre le code ici</div>
+      <div>
+        <input id="codeInput" type="text" placeholder="ton code" autocomplete="off" />
+        <button id="checkBtn">Valider</button>
+      </div>
+      <div id="msg" class="hint"></div>
+
+      <div id="reveal" class="reveal" aria-live="polite">
+        WHEREDAMONEY@??
+      </div>
+
+      <div class="vignette">Site rétro — lecture audio automatique après validation.</div>
+    </div>
+  </div>
+
+  <!-- Audio renommé -->
+  <audio id="secretAudio" preload="auto" src="WHEREDAMONEY@ 8-Bit.wav"></audio>
+
+<script>
+  const EXPECTED = "jErk_k€y_1";
+  const input = document.getElementById('codeInput');
+  const btn = document.getElementById('checkBtn');
+  const msg = document.getElementById('msg');
+  const reveal = document.getElementById('reveal');
+  const audio = document.getElementById('secretAudio');
+
+  btn.addEventListener('click', async () => {
+    const val = input.value.trim();
+    if(!val){ msg.textContent = "Entre le code."; return; }
+    msg.textContent = "Vérification…";
+    if(val === EXPECTED){
+      msg.textContent = "";
+      reveal.style.display = "block";
+      reveal.classList.add('glitch');
+      try { await audio.play(); } catch(err){
+        msg.innerHTML = 'Lecture bloquée — <button id="manualPlay">Jouer le son</button>';
+        document.getElementById('manualPlay').addEventListener('click', ()=>{ audio.play(); msg.textContent=""; });
+      }
+      reveal.scrollIntoView({behavior:'smooth', block:'center'});
+    } else {
+      msg.textContent = "Code invalide. Essaie encore.";
+      reveal.style.display = "none";
+      reveal.classList.remove('glitch');
+      try{ audio.pause(); audio.currentTime = 0; }catch(e){}
+    }
+  });
+  input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ btn.click(); } });
+</script>
+</body>
+</html>
